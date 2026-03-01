@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buzz</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .btn-lang {
+      background: none;
+      border: 1px solid var(--border, #555);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 4px 8px;
+      line-height: 1;
+      opacity: 0.7;
+      transition: opacity 0.15s;
+    }
+    .btn-lang:hover { opacity: 1; }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  </style>
+</head>
+<body class="settings-page">
+  <header>
+    <div class="header-top">
+      <a href="/" class="back-link">&larr; Dashboard</a>
+      <h1></h1>
+      <div class="header-actions">
+        <button class="btn-lang" id="btn-lang" title="Switch Language / 切換語言">&#127760;</button>
+        <div id="save-status"></div>
+      </div>
+    </div>
+    <div class="settings-tabs" id="settings-tabs">
+      <button class="settings-tab active" data-tab="sources"></button>
+      <button class="settings-tab" data-tab="output"></button>
+      <button class="settings-tab" data-tab="system"></button>
+    </div>
+  </header>
+  <main id="settings"></main>
+  <div class="save-bar" id="save-bar">
+    <button class="btn-reset" id="btn-reset"></button>
+    <button class="btn-save" id="btn-save" disabled></button>
+  </div>
+  <script src="settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+node_modules/
+package-lock.json
+*.log
+/config.json
+.wrangler/
+.dev.vars
+test-rss.mjs
+6551-news.service
+__pycache__/
+*.pyc
+.venv/

@@ -1,0 +1,8 @@
+name = "news-discord-worker"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+[vars]
+DISCORD_CHANNEL_ID = ""
+VPS_API_PW = ""
+# VPS_API_URL is managed as a secret (auto-updated by VPS tunnel script)

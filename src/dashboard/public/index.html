@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buzz Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <div class="header-top">
+      <h1>Buzz Dashboard</h1>
+      <div class="status">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-text">Connecting...</span>
+      </div>
+      <a href="/settings.html" class="settings-link" id="settings-link">&#9881;</a>
+    </div>
+    <div class="filters">
+      <button class="filter-btn active" data-source="all">All</button>
+      <button class="filter-btn" data-source="jin10">金十</button>
+      <button class="filter-btn" data-source="blockbeats">BlockBeats</button>
+      <button class="filter-btn" data-source="rss">RSS</button>
+      <button class="filter-btn" data-source="x">X</button>
+      <button class="filter-btn" data-source="polymarket">Polymarket</button>
+      <button class="filter-btn" data-source="opennews">OpenNews</button>
+    </div>
+  </header>
+
+  <div id="feed"></div>
+
+  <script src="app.js"></script>
+  <script>
+    const pw = new URLSearchParams(window.location.search).get('pw');
+    if (pw) document.getElementById('settings-link').href = '/settings.html?pw=' + encodeURIComponent(pw);
+  </script>
+</body>
+</html>

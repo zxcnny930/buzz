@@ -1,0 +1,83 @@
+{
+  "jin10": {
+    "enabled": true,
+    "pollIntervalMs": 15000,
+    "onlyImportant": true
+  },
+  "blockbeats": {
+    "enabled": true,
+    "pollIntervalMs": 30000,
+    "onlyImportant": true,
+    "lang": "cht"
+  },
+  "rssFeeds": [
+    {
+      "enabled": true,
+      "name": "動區",
+      "feedUrl": "https://www.blocktempo.com/feed/",
+      "pollIntervalMs": 300000,
+      "color": 16746496
+    },
+    {
+      "enabled": true,
+      "name": "BBC中文",
+      "feedUrl": "https://feeds.bbci.co.uk/zhongwen/trad/rss.xml",
+      "pollIntervalMs": 300000,
+      "color": 12065280
+    },
+    {
+      "enabled": true,
+      "name": "公視",
+      "feedUrl": "https://news.pts.org.tw/xml/newsfeed.xml",
+      "pollIntervalMs": 300000,
+      "color": 3447003
+    }
+  ],
+  "x6551": {
+    "enabled": false,
+    "apiBase": "https://ai.6551.io",
+    "token": "",
+    "pollIntervalMs": 3600000,
+    "kols": []
+  },
+  "opennews": {
+    "enabled": false,
+    "pollIntervalMs": 60000,
+    "minScore": 70,
+    "signals": [],
+    "coins": [],
+    "engineTypes": []
+  },
+  "grok": {
+    "apiKey": "",
+    "model": "grok-4.1-fast",
+    "baseUrl": "https://api.x.ai/v1"
+  },
+  "discord": {
+    "webhookUrl": "",
+    "botToken": "",
+    "channelId": ""
+  },
+  "polymarket": {
+    "enabled": true,
+    "pollIntervalMs": 180000,
+    "marketRefreshMs": 600000,
+    "zThreshold": 2.5,
+    "minChangePp": 5,
+    "volSpikeThreshold": 2.0,
+    "minLiquidity": 10000,
+    "rollingWindowMinutes": 30,
+    "cooldownMs": 900000,
+    "tagIds": [],
+    "excludeTagIds": []
+  },
+  "telegram": {
+    "enabled": false,
+    "botToken": "",
+    "chatId": ""
+  },
+  "dashboard": {
+    "port": 3848,
+    "password": ""
+  }
+}
