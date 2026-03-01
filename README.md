@@ -129,7 +129,7 @@ npx skills add https://github.com/zxcnny930/buzz/tree/main/opennews-mcp --skill 
 | 路透中文 | `https://feedx.net/rss/reuters.xml` |
 | 紐約時報中文 | `https://feedx.net/rss/nytimes.xml` |
 | FT 金融時報中文 | `https://feedx.net/rss/ft.xml` |
-| BBC 中文 | `https://feedx.net/rss/bbc.xml` |
+| BBC  | `https://feedx.net/rss/bbc.xml` |
 | 法國國際廣播 (RFI) | `https://feedx.net/rss/rfi.xml` |
 | 德國之聲 | `https://feedx.net/rss/dw.xml` |
 | 日經中文 | `https://feedx.net/rss/nikkei.xml` |
