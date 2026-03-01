@@ -122,32 +122,30 @@ npx skills add https://github.com/zxcnny930/buzz/tree/main/opennews-mcp --skill 
 
 These RSS feeds can be added directly in the "RSS Sources" section of the settings page.
 
-### International Media (Chinese editions)
+### World News
 
 | Media | RSS URL |
 |-------|---------|
-| Reuters Chinese | `https://feedx.net/rss/reuters.xml` |
-| NYT Chinese | `https://feedx.net/rss/nytimes.xml` |
-| FT Chinese | `https://feedx.net/rss/ft.xml` |
-| BBC Chinese | `https://feedx.net/rss/bbc.xml` |
-| RFI Chinese | `https://feedx.net/rss/rfi.xml` |
-| Deutsche Welle | `https://feedx.net/rss/dw.xml` |
-| Nikkei Chinese | `https://feedx.net/rss/nikkei.xml` |
-| Asahi Shimbun | `https://feedx.net/rss/asahi.xml` |
-| Zaobao | `https://feedx.net/rss/zaobaotoday.xml` |
-| The Paper | `https://feedx.net/rss/thepaper.xml` |
-| CNA | `https://feedx.net/rss/cna.xml` |
-
-### English International Media
-
-| Media | RSS URL |
-|-------|---------|
+| Reuters | `https://www.reutersagency.com/feed/` |
+| BBC World | `https://feeds.bbci.co.uk/news/world/rss.xml` |
+| BBC Business | `https://feeds.bbci.co.uk/news/business/rss.xml` |
+| NPR News | `https://feeds.npr.org/1001/rss.xml` |
+| Al Jazeera | `https://www.aljazeera.com/xml/rss/all.xml` |
 | TIME | `https://time.com/feed/` |
 | SCMP | `https://www.scmp.com/rss/91/feed` |
-| BBC World | `https://feeds.bbci.co.uk/news/world/rss.xml` |
-| BBC Chinese (Trad.) | `https://feeds.bbci.co.uk/zhongwen/trad/rss.xml` |
+| The Guardian | `https://www.theguardian.com/world/rss` |
+| AP News | `https://apnews.com/index.rss` |
 
-### Crypto / Finance
+### Finance
+
+| Media | RSS URL |
+|-------|---------|
+| CNBC | `https://www.cnbc.com/id/10000664/device/rss/rss.html` |
+| CNBC Finance | `https://www.cnbc.com/id/10000115/device/rss/rss.html` |
+| MarketWatch | `https://feeds.marketwatch.com/marketwatch/topstories/` |
+| Bloomberg (via Google News) | `https://news.google.com/rss/search?q=site:bloomberg.com&hl=en` |
+
+### Crypto
 
 | Media | RSS URL |
 |-------|---------|
@@ -156,17 +154,17 @@ These RSS feeds can be added directly in the "RSS Sources" section of the settin
 | CryptoSlate | `https://cryptoslate.com/feed/` |
 | CryptoPotato | `https://cryptopotato.com/feed/` |
 | The Defiant | `https://thedefiant.io/feed/` |
-| CNBC | `https://www.cnbc.com/id/10000664/device/rss/rss.html` |
-| BlockTempo | `https://www.blocktempo.com/feed/` |
+| Decrypt | `https://decrypt.co/feed` |
+| The Block | `https://www.theblock.co/rss.xml` |
 
-### Taiwan Media
+### Tech
 
 | Media | RSS URL |
 |-------|---------|
-| PTS News | `https://news.pts.org.tw/xml/newsfeed.xml` |
-| CNA | `https://www.cna.com.tw/rss/aall.xml` |
-
-> For more Chinese RSS sources, see [awesome-newsCN-feeds](https://github.com/RSS-Renaissance/awesome-newsCN-feeds)
+| TechCrunch | `https://techcrunch.com/feed/` |
+| Ars Technica | `https://feeds.arstechnica.com/arstechnica/index` |
+| The Verge | `https://www.theverge.com/rss/index.xml` |
+| Hacker News | `https://hnrss.org/frontpage` |
 
 ## API Endpoints
 
