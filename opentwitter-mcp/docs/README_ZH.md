@@ -40,7 +40,7 @@ claude mcp add twitter \
 
 ### OpenClaw
 
-> [OpenClaw](https://openclaw.io) 是 AI 助手技能平台。[ClawHub](https://clawhub.io) 是它的套件仓库。
+> [OpenClaw](https://openclaw.io) 是 AI 助手技能平台。[ClawHub](https://clawhub.ai) 是它的套件仓库。
 
 ```bash
 # 透過 ClawHub 一鍵安裝

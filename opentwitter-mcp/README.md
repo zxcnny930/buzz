@@ -40,7 +40,7 @@ claude mcp add twitter \
 
 ### OpenClaw
 
-> [OpenClaw](https://openclaw.io) is an AI skill platform. [ClawHub](https://clawhub.io) is its package registry.
+> [OpenClaw](https://openclaw.io) is an AI skill platform. [ClawHub](https://clawhub.ai) is its package registry.
 
 ```bash
 # One-click install via ClawHub

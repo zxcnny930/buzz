@@ -40,7 +40,7 @@ claude mcp add opennews \
 
 ### OpenClaw
 
-> [OpenClaw](https://openclaw.io)은 AI 어시스턴트 스킬 플랫폼입니다. [ClawHub](https://clawhub.io)은 패키지 레지스트리입니다.
+> [OpenClaw](https://openclaw.io)은 AI 어시스턴트 스킬 플랫폼입니다. [ClawHub](https://clawhub.ai)은 패키지 레지스트리입니다.
 
 ```bash
 # ClawHub 원클릭 설치

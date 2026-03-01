@@ -181,7 +181,7 @@ npx skills add https://github.com/zxcnny930/buzz/tree/main/opennews-mcp --skill 
 
 ## 用 OpenClaw 管理
 
-[OpenClaw](https://openclaw.io) 是一個 AI 助手技能平台，安裝 Skill 後，你的 AI 助手就能透過自然語言操作 Buzz。[ClawHub](https://clawhub.io) 是 OpenClaw 的套件倉庫。
+[OpenClaw](https://openclaw.io) 是一個 AI 助手技能平台，安裝 Skill 後，你的 AI 助手就能透過自然語言操作 Buzz。[ClawHub](https://clawhub.ai) 是 OpenClaw 的套件倉庫。
 
 ### 方法一：ClawHub 一鍵安裝
 

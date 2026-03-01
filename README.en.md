@@ -179,7 +179,7 @@ All endpoints support `?pw=PASSWORD` for authentication when dashboard password 
 
 ## Manage with OpenClaw
 
-[OpenClaw](https://openclaw.io) is an AI assistant skills platform — once a Skill is installed, your AI assistant can manage Buzz through natural language. [ClawHub](https://clawhub.io) is the OpenClaw package registry.
+[OpenClaw](https://openclaw.io) is an AI assistant skills platform — once a Skill is installed, your AI assistant can manage Buzz through natural language. [ClawHub](https://clawhub.ai) is the OpenClaw package registry.
 
 ### Option 1: One-click via ClawHub
 

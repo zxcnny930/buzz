@@ -40,7 +40,7 @@ claude mcp add twitter \
 
 ### OpenClaw
 
-> [OpenClaw](https://openclaw.io) は AI アシスタントスキルプラットフォームです。[ClawHub](https://clawhub.io) はそのパッケージレジストリです。
+> [OpenClaw](https://openclaw.io) は AI アシスタントスキルプラットフォームです。[ClawHub](https://clawhub.ai) はそのパッケージレジストリです。
 
 ```bash
 # ClawHub ワンクリックインストール
