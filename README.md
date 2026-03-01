@@ -122,7 +122,17 @@ npx skills add https://github.com/zxcnny930/buzz/tree/main/opennews-mcp --skill 
 
 以下整理了可直接使用的 RSS feed，在設定頁面的「RSS 來源」新增即可。
 
-### 國際主流媒體（中文版）
+> 英文來源可搭配 AI 翻譯功能，自動翻譯為繁體中文。
+
+### 國際媒體（繁體中文）
+
+| 媒體 | RSS URL |
+|------|---------|
+| BBC 中文（繁體） | `https://feeds.bbci.co.uk/zhongwen/trad/rss.xml` |
+| DW 德國之聲（繁體） | `https://rss.dw.com/xml/rss-zt-all` |
+| RFI 法國國際廣播（繁體） | `https://www.rfi.fr/tw/rss` |
+
+### 國際媒體（簡體中文）
 
 | 媒體 | RSS URL |
 |------|---------|
@@ -136,35 +146,38 @@ npx skills add https://github.com/zxcnny930/buzz/tree/main/opennews-mcp --skill 
 | 朝日新聞 | `https://feedx.net/rss/asahi.xml` |
 | 聯合早報 | `https://feedx.net/rss/zaobaotoday.xml` |
 | 澎湃新聞 | `https://feedx.net/rss/thepaper.xml` |
-| 中央社 | `https://feedx.net/rss/cna.xml` |
+
+### 台灣媒體
+
+| 媒體 | RSS URL |
+|------|---------|
+| 中央社 國際 | `https://feeds.feedburner.com/rsscna/intworld` |
+| 中央社 財經 | `https://feeds.feedburner.com/rsscna/finance` |
+| 中央社 政治 | `https://feeds.feedburner.com/rsscna/politics` |
+| 公視新聞 | `https://news.pts.org.tw/xml/newsfeed.xml` |
+| 自由時報 | `https://news.ltn.com.tw/rss/all.xml` |
 
 ### 英文國際媒體
 
 | 媒體 | RSS URL |
 |------|---------|
+| BBC World | `https://feeds.bbci.co.uk/news/world/rss.xml` |
 | TIME | `https://time.com/feed/` |
 | 南華早報 (SCMP) | `https://www.scmp.com/rss/91/feed` |
-| BBC World | `https://feeds.bbci.co.uk/news/world/rss.xml` |
-| BBC 中文（繁體） | `https://feeds.bbci.co.uk/zhongwen/trad/rss.xml` |
+| The Guardian | `https://www.theguardian.com/world/rss` |
+| AP News | `https://apnews.com/index.rss` |
 
 ### 加密貨幣 / 財經
 
 | 媒體 | RSS URL |
 |------|---------|
+| 動區 BlockTempo | `https://www.blocktempo.com/feed/` |
 | CoinDesk | `https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml` |
 | CoinTelegraph | `https://cointelegraph.com/rss` |
 | CryptoSlate | `https://cryptoslate.com/feed/` |
 | CryptoPotato | `https://cryptopotato.com/feed/` |
 | The Defiant | `https://thedefiant.io/feed/` |
 | CNBC | `https://www.cnbc.com/id/10000664/device/rss/rss.html` |
-| 動區 BlockTempo | `https://www.blocktempo.com/feed/` |
-
-### 台灣媒體
-
-| 媒體 | RSS URL |
-|------|---------|
-| 公視新聞 | `https://news.pts.org.tw/xml/newsfeed.xml` |
-| 中央社 | `https://www.cna.com.tw/rss/aall.xml` |
 
 > 更多中文 RSS 來源可參考 [awesome-newsCN-feeds](https://github.com/RSS-Renaissance/awesome-newsCN-feeds)
 
