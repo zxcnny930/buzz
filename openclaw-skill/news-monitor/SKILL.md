@@ -1,7 +1,7 @@
 ---
 name: buzz
 description: Real-time news aggregator with Discord & Telegram push. Manage Jin10, BlockBeats, RSS, X KOLs, Polymarket, OpenNews via REST API.
-version: 1.0.1
+version: 1.1.1
 user-invocable: true
 metadata:
   openclaw:
@@ -9,6 +9,7 @@ metadata:
       bins:
         - node
         - npm
+        - git
     emoji: "\U0001F4F0"
     os:
       - darwin
@@ -22,13 +23,20 @@ Install, run, and manage a real-time news aggregator with Discord & Telegram pus
 
 **Base URL**: `http://localhost:3848` (default, configurable via `dashboard.port`)
 
+## Security Notice
+
+- `config.json` stores API keys, bot tokens, and webhook URLs locally. **Never commit it to version control** (it is gitignored by default).
+- If `dashboard.password` is empty, the REST API is **unauthenticated**. Always set a password when the dashboard is exposed beyond localhost.
+- The server binds to `0.0.0.0` by default. Use a reverse proxy or firewall to restrict access in production.
+- Review the source code at [github.com/zxcnny930/buzz](https://github.com/zxcnny930/buzz) before running.
+
 ## Quick Setup
 
 ```bash
 git clone https://github.com/zxcnny930/buzz.git
 cd buzz
 npm install
-cp config.example.json config.json
+cp config.example.json config.json  # Edit config.json and set dashboard.password before starting
 npm start
 ```
 
@@ -317,6 +325,8 @@ Streams real-time news events as SSE. On connection, all historical events are s
 | Field | Type | Default | Validation | Description |
 |-------|------|---------|------------|-------------|
 | `enabled` | boolean | `true` | | Enable Polymarket monitoring |
+| `priceSpikeEnabled` | boolean | `true` | | Enable price spike alerts |
+| `volumeSpikeEnabled` | boolean | `true` | | Enable volume spike alerts |
 | `pollIntervalMs` | number | `180000` | >= 5000 | Price check interval |
 | `marketRefreshMs` | number | `600000` | >= 60000 | Market list refresh interval |
 | `minChangePp` | number | `5` | | Min percentage point change to alert |

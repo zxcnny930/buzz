@@ -61,6 +61,8 @@
   },
   "polymarket": {
     "enabled": true,
+    "priceSpikeEnabled": true,
+    "volumeSpikeEnabled": true,
     "pollIntervalMs": 180000,
     "marketRefreshMs": 600000,
     "zThreshold": 2.5,
@@ -68,6 +70,7 @@
     "volSpikeThreshold": 2.0,
     "minLiquidity": 10000,
     "rollingWindowMinutes": 30,
+    "minDataPoints": 3,
     "cooldownMs": 900000,
     "tagIds": [],
     "excludeTagIds": []

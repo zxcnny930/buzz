@@ -74,6 +74,8 @@ const LANG = {
 
     // Polymarket
     polymarketTitle: 'Polymarket 預測市場',
+    priceSpikeEnabled: '價格異動通知',
+    volumeSpikeEnabled: '交易量異動通知',
     marketRefresh: '市場列表刷新',
     hintMarketRefresh: '多久重新載入市場列表',
     minChangeThreshold: '最小變動門檻',
@@ -85,8 +87,10 @@ const LANG = {
     hintVolSpike: '超過此倍數觸發警報',
     minLiquidity: '最低流動性門檻',
     hintMinLiquidity: '低於此金額的市場會被忽略',
-    analysisWindow: '分析窗口',
-    hintAnalysisWindow: '計算價格異動的時間範圍',
+    analysisWindow: '價格回溯時間',
+    hintAnalysisWindow: '跟幾分鐘前的價格比較（如 30 = 跟半小時前比）',
+    minDataPoints: '最少數據點',
+    hintMinDataPoints: '歷史數據不足此數量的市場會跳過（越低越多市場會被檢查）',
     alertCooldown: '警報冷卻時間',
     hintAlertCooldown: '同一市場再次警報的最短間隔',
     trackOnlyTypes: '只追蹤這些類型',
@@ -259,6 +263,8 @@ const LANG = {
 
     // Polymarket
     polymarketTitle: 'Polymarket Predictions',
+    priceSpikeEnabled: 'Price Spike Alerts',
+    volumeSpikeEnabled: 'Volume Spike Alerts',
     marketRefresh: 'Market List Refresh',
     hintMarketRefresh: 'How often to reload market list',
     minChangeThreshold: 'Min Change Threshold',
@@ -270,8 +276,10 @@ const LANG = {
     hintVolSpike: 'Alert when volume exceeds this multiplier',
     minLiquidity: 'Min Liquidity Threshold',
     hintMinLiquidity: 'Markets below this amount will be ignored',
-    analysisWindow: 'Analysis Window',
-    hintAnalysisWindow: 'Time range for calculating price changes',
+    analysisWindow: 'Price Lookback',
+    hintAnalysisWindow: 'Compare current price to X minutes ago (e.g. 30 = compare with 30 min ago)',
+    minDataPoints: 'Min Data Points',
+    hintMinDataPoints: 'Markets with fewer history points are skipped (lower = more markets checked)',
     alertCooldown: 'Alert Cooldown',
     hintAlertCooldown: 'Min interval before re-alerting same market',
     trackOnlyTypes: 'Track Only These Types',
@@ -653,6 +661,8 @@ function buildPolymarket(cfg) {
 
   return sectionHtml('polymarket', t('polymarketTitle'),
     formRow(t('enable'), toggle(c.enabled !== false)) +
+    formRow(t('priceSpikeEnabled'), toggle(c.priceSpikeEnabled !== false)) +
+    formRow(t('volumeSpikeEnabled'), toggle(c.volumeSpikeEnabled !== false)) +
     formRow(t('pollInterval'), numberInput(msToSec(c.pollIntervalMs), 'pm-interval', 'min="5" step="1"'), t('sec')) +
     formRow(t('marketRefresh'), numberInput(msToMin(c.marketRefreshMs), 'pm-refresh', 'min="1" step="1"'), t('min'), t('hintMarketRefresh')) +
     formRow(t('minChangeThreshold'), numberInput(c.minChangePp ?? 5, 'pm-minchange', 'min="1" step="1"'), 'pp', t('hintMinChange')) +
@@ -660,6 +670,7 @@ function buildPolymarket(cfg) {
     formRow(t('volSpike'), numberInput(c.volSpikeThreshold, 'pm-volspike', 'min="0.1" step="0.1"'), t('times'), t('hintVolSpike')) +
     formRow(t('minLiquidity'), numberInput(c.minLiquidity, 'pm-liquidity', 'min="0" step="100"'), '$', t('hintMinLiquidity')) +
     formRow(t('analysisWindow'), numberInput(c.rollingWindowMinutes, 'pm-window', 'min="1" step="1"'), t('min'), t('hintAnalysisWindow')) +
+    formRow(t('minDataPoints'), numberInput(c.minDataPoints ?? 3, 'pm-mindp', 'min="2" step="1"'), '', t('hintMinDataPoints')) +
     formRow(t('alertCooldown'), numberInput(msToMin(c.cooldownMs), 'pm-cooldown', 'min="0" step="1"'), t('min'), t('hintAlertCooldown')) +
     `<div class="form-row" style="flex-direction:column;align-items:stretch">
       <span class="form-label" style="margin-bottom:8px">${t('trackOnlyTypes')}<span class="hint" title="${escapeAttr(t('hintTrackOnly'))}">?</span></span>
@@ -1085,6 +1096,8 @@ function getCurrentConfig() {
   });
   cfg.polymarket = {
     enabled: pmToggles[0] ?? true,
+    priceSpikeEnabled: pmToggles[1] ?? true,
+    volumeSpikeEnabled: pmToggles[2] ?? true,
     pollIntervalMs: secToMs(getVal('pm-interval')),
     marketRefreshMs: minToMs(getVal('pm-refresh')),
     minChangePp: parseInt(getVal('pm-minchange')) || 5,
@@ -1092,6 +1105,7 @@ function getCurrentConfig() {
     volSpikeThreshold: parseFloat(getVal('pm-volspike')) || 0,
     minLiquidity: parseInt(getVal('pm-liquidity')) || 0,
     rollingWindowMinutes: parseInt(getVal('pm-window')) || 0,
+    minDataPoints: parseInt(getVal('pm-mindp')) || 3,
     cooldownMs: minToMs(getVal('pm-cooldown')),
     tagIds,
     excludeTagIds

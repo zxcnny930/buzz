@@ -9,11 +9,14 @@ export class PolymarketPoller {
     this.onSpike = onSpike;
     this.pollInterval = config.pollIntervalMs || 180000;       // 3 min
     this.marketRefresh = config.marketRefreshMs || 600000;      // 10 min
+    this.priceSpikeEnabled = config.priceSpikeEnabled !== false; // default on
+    this.volumeSpikeEnabled = config.volumeSpikeEnabled !== false; // default on
     this.zThreshold = config.zThreshold ?? 2.5;
     this.minChangePp = config.minChangePp ?? 5;                  // min 5 percentage points
     this.volSpikeThreshold = config.volSpikeThreshold || 2.0;   // 200%
     this.minLiquidity = config.minLiquidity || 10000;
     this.rollingWindow = config.rollingWindowMinutes || 30;
+    this.minDataPoints = config.minDataPoints ?? 3;              // min history points needed
     this.cooldownMs = config.cooldownMs || 900000;              // 15 min
     this.tagIds = Array.isArray(config.tagIds) ? config.tagIds : [];
     this.excludeTagIds = Array.isArray(config.excludeTagIds) ? config.excludeTagIds : [];
@@ -35,7 +38,8 @@ export class PolymarketPoller {
     await this._pollAll();
     this._pollTimer = setInterval(() => this._pollAll(), this.pollInterval);
 
-    console.log(`[Polymarket] Started — ${this.markets.length} markets, polling every ${this.pollInterval / 1000}s`);
+    const modes = [this.priceSpikeEnabled && 'price', this.volumeSpikeEnabled && 'volume'].filter(Boolean).join('+') || 'none';
+    console.log(`[Polymarket] Started — ${this.markets.length} markets, polling every ${this.pollInterval / 1000}s [${modes}]`);
   }
 
   stop() {
@@ -112,22 +116,24 @@ export class PolymarketPoller {
     for (const market of this.markets) {
       if (this._stopped) break;
 
-      for (let ti = 0; ti < market.clobTokenIds.length; ti++) {
-        const tokenId = market.clobTokenIds[ti];
-        try {
-          const spike = await this._checkToken(market, tokenId, ti);
-          if (spike) spikeCount++;
-          checked++;
-        } catch (e) {
-          // Silently skip individual token errors
-        }
+      if (this.priceSpikeEnabled) {
+        for (let ti = 0; ti < market.clobTokenIds.length; ti++) {
+          const tokenId = market.clobTokenIds[ti];
+          try {
+            const spike = await this._checkToken(market, tokenId, ti);
+            if (spike) spikeCount++;
+            checked++;
+          } catch (e) {
+            // Silently skip individual token errors
+          }
 
-        // Small delay to stay within rate limits (~20ms between requests)
-        await sleep(20);
+          // Small delay to stay within rate limits (~20ms between requests)
+          await sleep(20);
+        }
       }
 
       // Check volume spike
-      this._checkVolume(market);
+      if (this.volumeSpikeEnabled) this._checkVolume(market);
     }
 
     if (spikeCount > 0) {
@@ -155,12 +161,15 @@ export class PolymarketPoller {
     const data = await res.json();
     const history = data.history || [];
 
-    if (history.length < this.rollingWindow + 2) return false;
+    // Need minimum data points for meaningful comparison;
+    // z-score needs the full rolling window (checked below)
+    if (history.length < this.minDataPoints) return false;
 
     const prices = history.map(h => Number(h.p));
     const currentPrice = prices[prices.length - 1];
 
     // Compare to price at start of rolling window (e.g. 30 min ago)
+    // If fewer data points than rollingWindow, uses earliest available
     const lookbackIdx = Math.max(0, prices.length - 1 - this.rollingWindow);
     const basePrice = prices[lookbackIdx];
 
