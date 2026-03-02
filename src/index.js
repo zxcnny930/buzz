@@ -193,17 +193,21 @@ function createHandlers(deps) {
         return text;
       }
 
+      // Helper: translate outcome — show "中文 (English)" when translated
+      async function translateOutcome(original) {
+        if (!original || !deps.translator.isEnglish(original)) return original;
+        const zh = await deps.translator.translate(original);
+        if (zh && zh !== original) return `${zh} (${original})`;
+        return original;
+      }
+
       let embed;
       if (spike.type === 'price') {
         const icon = spike.direction === 'up' ? '📈' : '📉';
         const color = spike.direction === 'up' ? 0x00c853 : 0xff1744;
         const sign = spike.changePp > 0 ? '+' : '';
         const title = await translateTitle(market.question);
-        // Translate outcome name
-        let outcomeName = spike.outcome;
-        if (deps.translator.isEnglish(outcomeName)) {
-          outcomeName = (await deps.translator.translate(outcomeName)) || outcomeName;
-        }
+        const outcomeName = await translateOutcome(spike.outcome);
         embed = {
           title: `${icon} ${title}`,
           description: [
@@ -218,13 +222,9 @@ function createHandlers(deps) {
         };
       } else if (spike.type === 'volume') {
         const title = await translateTitle(market.question);
-        // groupItemTitle = the specific outcome driving volume (if available)
         let outcomeLine = '';
         if (market.groupItemTitle) {
-          let outcomeName = market.groupItemTitle;
-          if (deps.translator.isEnglish(outcomeName)) {
-            outcomeName = (await deps.translator.translate(outcomeName)) || outcomeName;
-          }
+          const outcomeName = await translateOutcome(market.groupItemTitle);
           outcomeLine = `**選項**: ${outcomeName}\n`;
         }
         embed = {
