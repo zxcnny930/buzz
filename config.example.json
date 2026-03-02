@@ -48,7 +48,8 @@
     "coins": [],
     "engineTypes": []
   },
-  "grok": {
+  "translator": "google",
+  "ai": {
     "apiKey": "",
     "model": "grok-4.1-fast",
     "baseUrl": "https://api.x.ai/v1"

@@ -66,7 +66,8 @@ npm start
     // cooldownMs: 900000 = 15 分鐘
     "tagIds": [], "excludeTagIds": []
   },
-  "grok": { "apiKey": "YOUR_KEY", "model": "grok-4.1-fast", "baseUrl": "https://api.x.ai/v1" },
+  "translator": "google",  // 翻譯引擎："google"（免費預設）、"ai"（需 API Key）、"none"（不翻譯）
+  "ai": { "apiKey": "YOUR_KEY", "model": "grok-4.1-fast", "baseUrl": "https://api.x.ai/v1" },
   "discord": {
     "webhookUrl": "",
     "botToken": "", "channelId": ""

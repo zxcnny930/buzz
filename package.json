@@ -1,12 +1,13 @@
 {
   "name": "buzz",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "scripts": {
     "start": "node src/index.js"
   },
   "dependencies": {
+    "@vitalets/google-translate-api": "^9.2.1",
     "opencc-js": "^1.0.5"
   }
 }

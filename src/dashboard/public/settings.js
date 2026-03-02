@@ -115,10 +115,15 @@ const LANG = {
     signalShort: '🔴 看跌',
     signalNeutral: '⚪ 中性',
 
-    // AI Translation (Grok)
+    // AI Translation
     aiTranslationTitle: 'AI 翻譯',
+    translatorEngine: '翻譯引擎',
+    translatorGoogle: 'Google 翻譯（免費）',
+    translatorAi: 'AI 翻譯（需 API Key）',
+    translatorNone: '不翻譯',
+    hintTranslatorEngine: '選擇翻譯方式。Google 免費且不需 API Key；AI 需設定下方 API',
     apiKey: 'API 金鑰',
-    hintApiKey: '翻譯服務的 API Key',
+    hintApiKey: '翻譯服務的 API Key（僅 AI 引擎需要）',
     aiModel: 'AI 模型',
     hintAiModel: '從列表選擇，或手動輸入自訂模型名稱',
     hintApiUrl: '支援 OpenAI 相容格式的 API 網址',
@@ -295,10 +300,15 @@ const LANG = {
     signalShort: '\ud83d\udd34 Short',
     signalNeutral: '\u26aa Neutral',
 
-    // AI Translation (Grok)
+    // AI Translation
     aiTranslationTitle: 'AI Translation',
+    translatorEngine: 'Translation Engine',
+    translatorGoogle: 'Google Translate (Free)',
+    translatorAi: 'AI Translation (API Key required)',
+    translatorNone: 'No Translation',
+    hintTranslatorEngine: 'Choose translation method. Google is free and needs no API Key; AI requires the API settings below',
     apiKey: 'API Key',
-    hintApiKey: 'API Key for translation service',
+    hintApiKey: 'API Key for translation service (AI engine only)',
     aiModel: 'AI Model',
     hintAiModel: 'Select from list or enter custom model name',
     hintApiUrl: 'OpenAI-compatible API endpoint URL',
@@ -663,8 +673,9 @@ function buildPolymarket(cfg) {
   );
 }
 
-function buildGrok(cfg) {
-  const c = cfg.grok || {};
+function buildAiTranslation(cfg) {
+  const c = cfg.ai || {};
+  const translator = cfg.translator || 'google';
   const models = [
     { value: 'grok-4.1-fast', label: 'Grok 4.1 Fast (xAI)' },
     { value: 'grok-3-mini-fast', label: 'Grok 3 Mini Fast (xAI)' },
@@ -677,12 +688,22 @@ function buildGrok(cfg) {
     { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Google)' },
   ];
   const datalistOpts = models.map(m => `<option value="${m.value}" label="${m.label}">`).join('');
-  const modelInput = `<input class="form-input" type="text" id="grok-model" list="model-list" value="${escapeAttr(c.model || '')}"><datalist id="model-list">${datalistOpts}</datalist>`;
+  const modelInput = `<input class="form-input" type="text" id="ai-model" list="model-list" value="${escapeAttr(c.model || '')}"><datalist id="model-list">${datalistOpts}</datalist>`;
 
-  return sectionHtml('grok', t('aiTranslationTitle'),
-    formRow(t('apiKey'), passwordField(c.apiKey, 'grok-key'), '', t('hintApiKey')) +
+  const translatorOpts = [
+    { value: 'google', label: t('translatorGoogle') },
+    { value: 'ai', label: t('translatorAi') },
+    { value: 'none', label: t('translatorNone') },
+  ];
+  const translatorSelect = `<select class="form-input" id="translator-engine">${translatorOpts.map(o =>
+    `<option value="${o.value}"${o.value === translator ? ' selected' : ''}>${o.label}</option>`
+  ).join('')}</select>`;
+
+  return sectionHtml('ai', t('aiTranslationTitle'),
+    formRow(t('translatorEngine'), translatorSelect, '', t('hintTranslatorEngine')) +
+    formRow(t('apiKey'), passwordField(c.apiKey, 'ai-key'), '', t('hintApiKey')) +
     formRow(t('aiModel'), modelInput, '', t('hintAiModel')) +
-    formRow(t('apiServer'), textInput(c.baseUrl, 'grok-url'), '', t('hintApiUrl')),
+    formRow(t('apiServer'), textInput(c.baseUrl, 'ai-url'), '', t('hintApiUrl')),
     null
   );
 }
@@ -799,7 +820,7 @@ function normalizeConfig(cfg) {
 const TAB_GROUPS = {
   sources: cfg => buildJin10(cfg) + buildBlockbeats(cfg) + buildRss(cfg) +
                    build6551(cfg) + buildPolymarket(cfg),
-  output:  cfg => buildGrok(cfg) + buildDiscord(cfg) + buildTelegram(cfg),
+  output:  cfg => buildAiTranslation(cfg) + buildDiscord(cfg) + buildTelegram(cfg),
   system:  cfg => buildDashboard(cfg),
 };
 
@@ -1096,10 +1117,11 @@ function getCurrentConfig() {
     engineTypes: onEngines,
   };
 
-  cfg.grok = {
-    apiKey: getVal('grok-key'),
-    model: getVal('grok-model'),
-    baseUrl: getVal('grok-url')
+  cfg.translator = getVal('translator-engine') || 'google';
+  cfg.ai = {
+    apiKey: getVal('ai-key'),
+    model: getVal('ai-model'),
+    baseUrl: getVal('ai-url')
   };
 
   const discordMode = getVal('discord-mode');
@@ -1137,7 +1159,7 @@ function getSectionToggles(sectionKey) {
 
 function getChangedSections(current) {
   const changed = {};
-  const sections = ['jin10', 'blockbeats', 'rssFeeds', 'x6551', 'polymarket', 'opennews', 'grok', 'discord', 'telegram', 'dashboard'];
+  const sections = ['jin10', 'blockbeats', 'rssFeeds', 'x6551', 'polymarket', 'opennews', 'translator', 'ai', 'discord', 'telegram', 'dashboard'];
   for (const key of sections) {
     if (JSON.stringify(current[key]) !== JSON.stringify(originalConfig[key])) {
       changed[key] = current[key];

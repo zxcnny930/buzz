@@ -66,7 +66,8 @@ You can also directly edit `config.json`:
     // cooldownMs: 900000 = 15 minutes
     "tagIds": [], "excludeTagIds": []
   },
-  "grok": { "apiKey": "YOUR_KEY", "model": "grok-4.1-fast", "baseUrl": "https://api.x.ai/v1" },
+  "translator": "google",  // Translation engine: "google" (free default), "ai" (needs API Key), "none" (no translation)
+  "ai": { "apiKey": "YOUR_KEY", "model": "grok-4.1-fast", "baseUrl": "https://api.x.ai/v1" },
   "discord": {
     "webhookUrl": "",
     "botToken": "", "channelId": ""

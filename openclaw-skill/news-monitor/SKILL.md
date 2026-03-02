@@ -1,7 +1,7 @@
 ---
 name: buzz
 description: Real-time news aggregator with Discord & Telegram push. Manage Jin10, BlockBeats, RSS, X KOLs, Polymarket, OpenNews via REST API.
-version: 1.0.0
+version: 1.0.1
 user-invocable: true
 metadata:
   openclaw:
@@ -126,12 +126,18 @@ curl -s -X POST http://localhost:3848/api/config \
   -d '{"polymarket": {"enabled": true, "minChangePp": 5, "zThreshold": 2.5, "volSpikeThreshold": 2.0, "minLiquidity": 10000, "tagIds": [21, 120], "excludeTagIds": [100639]}}'
 ```
 
-**Set AI translation model:**
+**Set translation engine and AI model:**
 
 ```bash
+# Use Google Translate (free, default)
 curl -s -X POST http://localhost:3848/api/config \
   -H "Content-Type: application/json" \
-  -d '{"grok": {"apiKey": "xai-...", "model": "grok-4.1-fast", "baseUrl": "https://api.x.ai/v1"}}'
+  -d '{"translator": "google"}'
+
+# Use AI translation (OpenAI-compatible API)
+curl -s -X POST http://localhost:3848/api/config \
+  -H "Content-Type: application/json" \
+  -d '{"translator": "ai", "ai": {"apiKey": "xai-...", "model": "grok-4.1-fast", "baseUrl": "https://api.x.ai/v1"}}'
 ```
 
 **Success response:**
@@ -334,7 +340,15 @@ Streams real-time news events as SSE. On connection, all historical events are s
 | 100265 | Geopolitics |
 | 100639 | Sports |
 
-### grok (AI Translation)
+### translator (top-level)
+
+| Value | Description | Requires |
+|-------|-------------|----------|
+| `"google"` | Google Translate (free, no key needed) **default** | — |
+| `"ai"` | Use `ai` section API (Grok/GPT/Claude/DeepSeek…) | `ai.apiKey` |
+| `"none"` | No translation, show English as-is | — |
+
+### ai (AI Translation)
 
 | Field | Type | Default | Validation | Description |
 |-------|------|---------|------------|-------------|

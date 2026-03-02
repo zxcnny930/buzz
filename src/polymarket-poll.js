@@ -91,6 +91,8 @@ export class PolymarketPoller {
           question: m.question || m.title || '',
           slug: m.slug || '',
           eventSlug: m.events?.[0]?.slug || m.slug || '',
+          eventTitle: m.events?.[0]?.title || '',
+          groupItemTitle: m.groupItemTitle || '',
           clobTokenIds: tokenIds,
           outcomes,
           volume24h: Number(m.volume24hr || 0),

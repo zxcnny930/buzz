@@ -6,7 +6,7 @@ import { RssPoller } from './rss-poll.js';
 import { XPoller } from './x-poll.js';
 import { PolymarketPoller } from './polymarket-poll.js';
 import { OpenNewsPoller } from './opennews-poll.js';
-import { Translator } from './translator.js';
+import { createTranslator } from './translator.js';
 import { Notifier } from './notifier.js';
 
 export class PollerRegistry {
@@ -148,9 +148,10 @@ export class PollerRegistry {
             this._reloadRss(config.rssFeeds || []);
             break;
 
-          case 'grok':
+          case 'translator':
+          case 'ai':
             console.log('[Registry] Recreating Translator...');
-            this._deps.translator = new Translator(config.grok);
+            this._deps.translator = createTranslator(config);
             break;
 
           case 'discord':

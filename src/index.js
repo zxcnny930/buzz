@@ -7,7 +7,8 @@ import { fileURLToPath } from 'url';
 
 import { ConfigManager } from './config-manager.js';
 import { PollerRegistry } from './poller-registry.js';
-import { Translator } from './translator.js';
+import { createTranslator } from './translator.js';
+import { fetchPolymarketZh } from './polymarket-zh.js';
 import { Notifier } from './notifier.js';
 import { EventBus } from './event-bus.js';
 import { DashboardServer } from './dashboard/server.js';
@@ -24,7 +25,7 @@ console.log(`=== Buzz v${pkg.version} Starting ===`);
 
 // 2. Shared deps (mutable — registry can replace notifier/translator on config change)
 const deps = {
-  translator: new Translator(config.grok),
+  translator: createTranslator(config),
   notifier: new Notifier({ discord: config.discord || {}, telegram: config.telegram || {} }),
   bus: new EventBus(200),
 };
@@ -179,20 +180,34 @@ function createHandlers(deps) {
       const eventSlug = market.eventSlug || market.slug;
       const marketUrl = `https://polymarket.com/event/${eventSlug}`;
       const ogImageUrl = `https://polymarket.com/api/og?eslug=${encodeURIComponent(eventSlug)}&tid=${Date.now()}`;
+
+      // Helper: translate market question — try Polymarket /zh/ first, then translator engine
+      async function translateTitle(text) {
+        // 1. Try official Polymarket Chinese
+        const zh = await fetchPolymarketZh(eventSlug);
+        if (zh) return zh;
+        // 2. Fallback to configured translator
+        if (deps.translator.isEnglish(text)) {
+          return (await deps.translator.translate(text)) || text;
+        }
+        return text;
+      }
+
       let embed;
       if (spike.type === 'price') {
         const icon = spike.direction === 'up' ? '📈' : '📉';
         const color = spike.direction === 'up' ? 0x00c853 : 0xff1744;
         const sign = spike.changePp > 0 ? '+' : '';
-        // Translate English market question to Chinese
-        let title = market.question;
-        if (deps.translator.isEnglish(title)) {
-          title = (await deps.translator.translate(title)) || title;
+        const title = await translateTitle(market.question);
+        // Translate outcome name
+        let outcomeName = spike.outcome;
+        if (deps.translator.isEnglish(outcomeName)) {
+          outcomeName = (await deps.translator.translate(outcomeName)) || outcomeName;
         }
         embed = {
           title: `${icon} ${title}`,
           description: [
-            `**選項**: ${spike.outcome}`,
+            `**選項**: ${outcomeName}`,
             `**變動**: ${(spike.prevPrice * 100).toFixed(1)}% → ${(spike.currentPrice * 100).toFixed(1)}%（${sign}${spike.changePp}pp）`,
             `[🔗 Polymarket](${marketUrl})`,
           ].join('\n'),
@@ -202,14 +217,25 @@ function createHandlers(deps) {
           timestamp: new Date().toISOString(),
         };
       } else if (spike.type === 'volume') {
+        const title = await translateTitle(market.question);
+        // groupItemTitle = the specific outcome driving volume (if available)
+        let outcomeLine = '';
+        if (market.groupItemTitle) {
+          let outcomeName = market.groupItemTitle;
+          if (deps.translator.isEnglish(outcomeName)) {
+            outcomeName = (await deps.translator.translate(outcomeName)) || outcomeName;
+          }
+          outcomeLine = `**選項**: ${outcomeName}\n`;
+        }
         embed = {
-          title: `🔊 ${market.question}`,
+          title: `🔊 ${title}`,
           description: [
+            outcomeLine ? outcomeLine.trim() : null,
             `**24h 交易量**: $${formatNum(spike.currentVolume)}`,
             `**前次交易量**: $${formatNum(spike.prevVolume)}`,
             `**增幅**: ${spike.ratio}x`,
             `[🔗 Polymarket](${marketUrl})`,
-          ].join('\n'),
+          ].filter(Boolean).join('\n'),
           color: 0xff6b35,
           image: { url: ogImageUrl },
           footer: { text: 'Polymarket Volume Alert' },
