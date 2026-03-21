@@ -1,7 +1,7 @@
 // Buzz — Main entry point
 // Jin10 + BlockBeats + RSS + X + Polymarket → Discord + Dashboard
 
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -14,10 +14,29 @@ import { EventBus } from './event-bus.js';
 import { DashboardServer } from './dashboard/server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+// Load .env manually (no dotenv dependency needed)
+const envPath = resolve(__dirname, '..', '.env');
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx > 0) {
+      const key = trimmed.slice(0, eqIdx).trim();
+      const val = trimmed.slice(eqIdx + 1).trim();
+      if (!process.env[key]) process.env[key] = val;
+    }
+  }
+}
 const configPath = resolve(__dirname, '..', 'config.json');
 
-// 1. Load config
+// 1. Load config (secrets can be overridden via env vars)
 const cfgMgr = new ConfigManager(configPath);
+// Override secrets from environment variables (mutate internal config, skip file write)
+if (process.env.BUZZ_DEEPSEEK_API_KEY) cfgMgr._config.ai = { ...cfgMgr._config.ai, apiKey: process.env.BUZZ_DEEPSEEK_API_KEY };
+if (process.env.BUZZ_TELEGRAM_BOT_TOKEN) cfgMgr._config.telegram = { ...cfgMgr._config.telegram, botToken: process.env.BUZZ_TELEGRAM_BOT_TOKEN };
+if (process.env.BUZZ_6551_TOKEN) cfgMgr._config.x6551 = { ...cfgMgr._config.x6551, token: process.env.BUZZ_6551_TOKEN };
+if (process.env.BUZZ_DASHBOARD_PASSWORD) cfgMgr._config.dashboard = { ...cfgMgr._config.dashboard, password: process.env.BUZZ_DASHBOARD_PASSWORD };
 const config = cfgMgr.get();
 
 const pkg = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf8'));

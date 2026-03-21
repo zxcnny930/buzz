@@ -41,8 +41,8 @@ export class DashboardServer {
 
   start() {
     this._server = createServer((req, res) => this._handle(req, res));
-    this._server.listen(this.port, () => {
-      console.log(`[Dashboard] Listening on http://0.0.0.0:${this.port}`);
+    this._server.listen(this.port, '127.0.0.1', () => {
+      console.log(`[Dashboard] Listening on http://127.0.0.1:${this.port}`);
     });
 
     // Subscribe to event bus
@@ -65,7 +65,7 @@ export class DashboardServer {
     // Handle CORS preflight for /api/*
     if (req.method === 'OPTIONS' && url.pathname.startsWith('/api/')) {
       res.writeHead(204, {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': 'http://127.0.0.1:3848',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
       });
@@ -114,7 +114,7 @@ export class DashboardServer {
 
   async _handleAPI(req, res, url) {
     const corsHeaders = {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': 'http://127.0.0.1:3848',
       'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     };
@@ -134,7 +134,12 @@ export class DashboardServer {
         res.end(JSON.stringify({ ok: false, error: 'ConfigManager not available' }));
         return;
       }
-      const config = this.cfgMgr.get();
+      const config = JSON.parse(JSON.stringify(this.cfgMgr.get()));
+      // Redact secrets before returning to client
+      if (config.ai && config.ai.apiKey) config.ai.apiKey = config.ai.apiKey.slice(0, 6) + '****';
+      if (config.telegram && config.telegram.botToken) config.telegram.botToken = '****';
+      if (config.x6551 && config.x6551.token) config.x6551.token = config.x6551.token.slice(0, 10) + '****';
+      if (config.discord && config.discord.botToken) config.discord.botToken = '****';
       res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
       res.end(JSON.stringify(config));
       return;
@@ -374,7 +379,7 @@ export class DashboardServer {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache, no-transform',
       'Connection': 'keep-alive',
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': 'http://127.0.0.1:3848',
       'X-Accel-Buffering': 'no',
       'Content-Encoding': 'none',
     });
