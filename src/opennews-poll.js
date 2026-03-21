@@ -16,6 +16,11 @@ export class OpenNewsPoller {
     this._timer = null;
     this._stopped = false;
     this._firstRun = true;
+
+    this.health = {
+      lastSuccess: null, lastError: null, lastErrorMsg: '',
+      consecutiveFailures: 0, totalPolls: 0, totalErrors: 0,
+    };
   }
 
   async start() {
@@ -104,8 +109,16 @@ export class OpenNewsPoller {
       if (newItems.length > 0) {
         this.onBatch(newItems);
       }
+      this.health.lastSuccess = Date.now();
+      this.health.consecutiveFailures = 0;
     } catch (e) {
-      console.error('[OpenNews] Poll error:', e.message);
+      this.health.totalErrors++;
+      this.health.consecutiveFailures++;
+      this.health.lastError = Date.now();
+      this.health.lastErrorMsg = e.message;
+      console.error(`[OpenNews] Error (${this.health.consecutiveFailures}x):`, e.message);
+    } finally {
+      this.health.totalPolls++;
     }
   }
 }

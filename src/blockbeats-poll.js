@@ -12,6 +12,11 @@ export class BlockBeatsPoller {
     this.seenIds = new Set();
     this._timer = null;
     this._stopped = false;
+
+    this.health = {
+      lastSuccess: null, lastError: null, lastErrorMsg: '',
+      consecutiveFailures: 0, totalPolls: 0, totalErrors: 0,
+    };
   }
 
   async start() {
@@ -78,8 +83,16 @@ export class BlockBeatsPoller {
         const arr = [...this.seenIds];
         this.seenIds = new Set(arr.slice(-3000));
       }
+      this.health.lastSuccess = Date.now();
+      this.health.consecutiveFailures = 0;
     } catch (e) {
-      console.error('[BlockBeats] Error:', e.message);
+      this.health.totalErrors++;
+      this.health.consecutiveFailures++;
+      this.health.lastError = Date.now();
+      this.health.lastErrorMsg = e.message;
+      console.error(`[BlockBeats] Error (${this.health.consecutiveFailures}x):`, e.message);
+    } finally {
+      this.health.totalPolls++;
     }
   }
 }

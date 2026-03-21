@@ -6,6 +6,9 @@ import { RssPoller } from './rss-poll.js';
 import { XPoller } from './x-poll.js';
 import { PolymarketPoller } from './polymarket-poll.js';
 import { OpenNewsPoller } from './opennews-poll.js';
+import { HkexPoller } from './hkex-poll.js';
+import { CcassPoller } from './ccass-poll.js';
+import { EconCalendarPoller } from './econ-calendar-poll.js';
 import { createTranslator } from './translator.js';
 import { Notifier } from './notifier.js';
 
@@ -20,7 +23,7 @@ export class PollerRegistry {
     this._deps = deps;
     this._handlers = handlers;
 
-    /** @type {Map<string, { poller: object, config: object }>} */
+    /** @type {Map<string, { poller: object, config: object, health: object }>} */
     this._pollers = new Map();
 
     // Listen for config changes
@@ -74,6 +77,30 @@ export class PollerRegistry {
       });
     }
 
+    // HKEX
+    if (this._isEnabled(config.hkex)) {
+      this._createAndStart('hkex', () => {
+        const poller = new HkexPoller(config.hkex || {}, { onBatch: this._handlers.handleHkexBatch });
+        return { poller, config: config.hkex };
+      });
+    }
+
+    // CCASS
+    if (this._isEnabled(config.ccass)) {
+      this._createAndStart('ccass', () => {
+        const poller = new CcassPoller(config.ccass || {}, { onBatch: this._handlers.handleCcassBatch });
+        return { poller, config: config.ccass };
+      });
+    }
+
+    // Economic Calendar
+    if (this._isEnabled(config.econCalendar)) {
+      this._createAndStart('econCalendar', () => {
+        const poller = new EconCalendarPoller(config.econCalendar || {}, { onBatch: this._handlers.handleEconCalendarBatch });
+        return { poller, config: config.econCalendar };
+      });
+    }
+
     // RSS feeds
     if (Array.isArray(config.rssFeeds)) {
       for (const feed of config.rssFeeds) {
@@ -103,6 +130,63 @@ export class PollerRegistry {
       };
     }
     return status;
+  }
+
+  /**
+   * Returns health metrics for all pollers.
+   * Combines poller-level health (if available) with registry-level tracking.
+   */
+  getHealth() {
+    const now = Date.now();
+    const health = {};
+    for (const [name, entry] of this._pollers) {
+      // Prefer poller's own health tracking (RssPoller has it)
+      const ph = entry.poller.health || entry.health || {};
+      const lastSuccess = ph.lastSuccess || null;
+      const consecutiveFailures = ph.consecutiveFailures || 0;
+      const ageMs = lastSuccess ? now - lastSuccess : null;
+
+      // Determine status: ok / degraded / error
+      let status = 'ok';
+      if (consecutiveFailures >= 5) {
+        status = 'error';
+      } else if (consecutiveFailures >= 3 || (ageMs && ageMs > (entry.config?.pollIntervalMs || 300000) * 5)) {
+        status = 'degraded';
+      } else if (lastSuccess === null && ph.totalPolls > 0 && ph.totalErrors > 0) {
+        status = 'error'; // polled but never succeeded
+      }
+
+      // Classify importance for alert severity
+      const importance = this._getSourceImportance(name);
+
+      health[name] = {
+        status,
+        importance,
+        lastSuccess: lastSuccess ? new Date(lastSuccess).toISOString() : null,
+        lastError: ph.lastError ? new Date(ph.lastError).toISOString() : null,
+        lastErrorMsg: ph.lastErrorMsg || '',
+        consecutiveFailures,
+        totalPolls: ph.totalPolls || 0,
+        totalErrors: ph.totalErrors || 0,
+        successRate: ph.totalPolls > 0
+          ? ((ph.totalPolls - (ph.totalErrors || 0)) / ph.totalPolls * 100).toFixed(1) + '%'
+          : 'N/A',
+        interval: entry.config?.pollIntervalMs || 0,
+      };
+    }
+    return health;
+  }
+
+  /** Classify source importance for alert severity (P1=critical, P2=normal, P3=low) */
+  _getSourceImportance(name) {
+    // HK market sources are critical for trading
+    if (name === 'jin10' || name === 'hkex' || name === 'ccass') return 'P1';
+    if (/格隆汇|gelonghui|华尔街见闻|wallstreetcn/i.test(name)) return 'P1';
+    // Core financial feeds
+    if (/Investing|MarketWatch|Financial Times|SCMP/i.test(name)) return 'P2';
+    if (['blockbeats', 'opennews', 'polymarket', 'econCalendar'].includes(name)) return 'P2';
+    // Nice-to-have
+    return 'P3';
   }
 
   // ─── Config change handler ───
@@ -142,6 +226,24 @@ export class PollerRegistry {
               const fallbackToken = config.x6551?.token || '';
               return new OpenNewsPoller(cfg, fallbackToken, { onBatch: this._handlers.handleOpenNewsBatch });
             });
+            break;
+
+          case 'hkex':
+            this._restartSimple('hkex', config.hkex, (cfg) =>
+              new HkexPoller(cfg, { onBatch: this._handlers.handleHkexBatch }),
+            );
+            break;
+
+          case 'ccass':
+            this._restartSimple('ccass', config.ccass, (cfg) =>
+              new CcassPoller(cfg, { onBatch: this._handlers.handleCcassBatch }),
+            );
+            break;
+
+          case 'econCalendar':
+            this._restartSimple('econCalendar', config.econCalendar, (cfg) =>
+              new EconCalendarPoller(cfg, { onBatch: this._handlers.handleEconCalendarBatch }),
+            );
             break;
 
           case 'rssFeeds':
@@ -194,6 +296,17 @@ export class PollerRegistry {
   _createAndStart(name, factory) {
     try {
       const entry = factory();
+      // Ensure every poller entry has a health object for registry-level tracking
+      if (!entry.poller.health) {
+        entry.health = {
+          lastSuccess: null,
+          lastError: null,
+          lastErrorMsg: '',
+          consecutiveFailures: 0,
+          totalPolls: 0,
+          totalErrors: 0,
+        };
+      }
       this._pollers.set(name, entry);
       entry.poller.start().catch((e) => console.error(`[${name}] Failed to start:`, e.message));
       console.log(`[Registry] Started: ${name}`);

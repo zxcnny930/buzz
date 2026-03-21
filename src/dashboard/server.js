@@ -231,6 +231,35 @@ export class DashboardServer {
       return;
     }
 
+    // GET /api/source-health — returns health metrics for all pollers
+    if (url.pathname === '/api/source-health' && req.method === 'GET') {
+      const health = this.registry ? this.registry.getHealth() : {};
+      res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+      res.end(JSON.stringify({ ok: true, sources: health, timestamp: new Date().toISOString() }));
+      return;
+    }
+
+    // GET /api/news — return recent news events for AI analysis
+    if (url.pathname === '/api/news' && req.method === 'GET') {
+      const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10), 200);
+      const since = parseInt(url.searchParams.get('since') || '0', 10);
+      let events = this.bus.getHistory();
+      if (since > 0) {
+        events = events.filter(e => e.ts > since);
+      }
+      events = events.slice(-limit);
+      // Flatten for AI consumption
+      const items = events.map(e => ({
+        source: e.source,
+        time: new Date(e.ts).toISOString(),
+        title: e.data?.title || e.data?.content || '',
+        url: e.data?.url || '',
+      }));
+      res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+      res.end(JSON.stringify({ ok: true, count: items.length, items }));
+      return;
+    }
+
     // Unknown API route
     res.writeHead(404, { 'Content-Type': 'application/json', ...corsHeaders });
     res.end(JSON.stringify({ ok: false, error: 'Not found' }));
