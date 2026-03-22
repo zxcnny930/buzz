@@ -9,3 +9,4 @@ test-rss.mjs
 __pycache__/
 *.pyc
 .venv/
+.env
