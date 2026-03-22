@@ -1,0 +1,240 @@
+{
+  "jin10": {
+    "enabled": true,
+    "pollIntervalMs": 30000,
+    "onlyImportant": true
+  },
+  "blockbeats": {
+    "enabled": true,
+    "pollIntervalMs": 60000,
+    "onlyImportant": true,
+    "lang": "cht"
+  },
+  "rssFeeds": [
+    {
+      "enabled": true,
+      "name": "CoinDesk",
+      "feedUrl": "https://www.coindesk.com/arc/outboundfeeds/rss/?outputType=xml",
+      "pollIntervalMs": 300000,
+      "color": 3447003
+    },
+    {
+      "enabled": true,
+      "name": "TechCrunch",
+      "feedUrl": "https://techcrunch.com/feed/",
+      "pollIntervalMs": 300000,
+      "color": 2067276
+    },
+    {
+      "enabled": true,
+      "name": "36氪",
+      "feedUrl": "https://36kr.com/feed",
+      "pollIntervalMs": 300000,
+      "color": 10181046
+    },
+    {
+      "enabled": true,
+      "name": "格隆汇 (港股快讯)",
+      "feedUrl": "https://rsshub.rssforever.com/gelonghui/live",
+      "pollIntervalMs": 120000,
+      "color": 15105570
+    },
+    {
+      "enabled": true,
+      "name": "Investing.com",
+      "feedUrl": "https://www.investing.com/rss/news.rss",
+      "pollIntervalMs": 300000,
+      "color": 16750848
+    },
+    {
+      "enabled": true,
+      "name": "MarketWatch",
+      "feedUrl": "https://feeds.content.dowjones.io/public/rss/mw_topstories",
+      "pollIntervalMs": 300000,
+      "color": 3066993
+    },
+    {
+      "enabled": true,
+      "name": "Financial Times",
+      "feedUrl": "https://www.ft.com/rss/home",
+      "pollIntervalMs": 300000,
+      "color": 16564282
+    },
+    {
+      "enabled": true,
+      "name": "SCMP 南华早报",
+      "feedUrl": "https://www.scmp.com/rss/91/feed",
+      "pollIntervalMs": 300000,
+      "color": 1752220,
+      "_note": "2026-03-21 新增: 港股/中国/亚太英文视角, 50 items/fetch"
+    },
+    {
+      "enabled": true,
+      "name": "华尔街见闻",
+      "feedUrl": "https://rsshub.rssforever.com/wallstreetcn/live/global",
+      "pollIntervalMs": 120000,
+      "color": 16098851,
+      "_note": "2026-03-21 新增: 实时全球财经快讯, 100 items/fetch, 中文"
+    },
+    {
+      "enabled": true,
+      "name": "金十经济日历",
+      "feedUrl": "https://rsshub.rssforever.com/jin10/flash",
+      "pollIntervalMs": 180000,
+      "color": 16711680,
+      "_note": "2026-03-21 新增: 经济数据发布快讯 (CPI/PMI/非农等), 与 jin10 flash API 互补"
+    },
+    {
+      "enabled": true,
+      "name": "ZeroHedge",
+      "feedUrl": "https://feeds.feedburner.com/zerohedge/feed",
+      "pollIntervalMs": 300000,
+      "color": 16711680
+    },
+    {
+      "enabled": true,
+      "name": "Arthur Hayes (CryptoHayes Substack)",
+      "feedUrl": "https://cryptohayes.substack.com/feed",
+      "pollIntervalMs": 3600000,
+      "color": 16753920
+    },
+    {
+      "enabled": true,
+      "name": "Lyn Alden",
+      "feedUrl": "https://www.lynalden.com/feed/",
+      "pollIntervalMs": 3600000,
+      "color": 3394611
+    },
+    {
+      "enabled": true,
+      "name": "The Block (加密新闻)",
+      "feedUrl": "https://www.theblock.co/rss.xml",
+      "pollIntervalMs": 300000,
+      "color": 1752220
+    }
+  ],
+  "hkex": {
+    "enabled": true,
+    "pollIntervalMs": 300000,
+    "market": "MAINBOARD",
+    "categories": [
+      "Inside Information",
+      "Suspension",
+      "Resumption",
+      "Share Buy-back",
+      "Rights Issue",
+      "Placing",
+      "Final Results",
+      "Interim Results"
+    ],
+    "_note": "2026-03-21 新增: 港交所上市公司公告, 过滤重要类别"
+  },
+  "ccass": {
+    "enabled": true,
+    "pollIntervalMs": 3600000,
+    "stockCodes": [
+      "00700",
+      "09988",
+      "01810",
+      "02318",
+      "00005",
+      "09618",
+      "03690",
+      "01024"
+    ],
+    "minChangePct": 0.5,
+    "topN": 10,
+    "_note": "2026-03-21 新增: CCASS 持仓变动监控, 1h 轮询, 跟踪港股核心标的"
+  },
+  "econCalendar": {
+    "enabled": true,
+    "pollIntervalMs": 1800000,
+    "minImpact": "High",
+    "countries": [
+      "USD",
+      "CNY",
+      "HKD",
+      "EUR",
+      "JPY",
+      "GBP",
+      "AUD"
+    ],
+    "alertBeforeMinutes": 60,
+    "_note": "2026-03-21 新增: 经济日历 (FairEconomy/ForexFactory), 30min 轮询, 仅高影响事件, 提前 1h 预警"
+  },
+  "x6551": {
+    "enabled": false,
+    "apiBase": "https://ai.6551.io",
+    "token": "SET_VIA_ENV:BUZZ_6551_TOKEN",
+    "pollIntervalMs": 1800000,
+    "kols": [
+      "elikiara",
+      "WhalePanda",
+      "CryptoHayes",
+      "zaborhmit"
+    ],
+    "_note": "2026-03-21 禁用: 免费 token 不含 X KOL API (402 Payment Required), token 保留供未来付费启用"
+  },
+  "opennews": {
+    "enabled": false,
+    "pollIntervalMs": 120000,
+    "minScore": 80,
+    "signals": [
+      "long",
+      "short"
+    ],
+    "coins": [
+      "BTC",
+      "ETH",
+      "SOL"
+    ],
+    "engineTypes": [
+      "news",
+      "listing"
+    ],
+    "_note": "2026-03-21 禁用: 免费 token 不含 OpenNews (402 Payment Required), X KOL 可用"
+  },
+  "translator": "google",
+  "ai": {
+    "apiKey": "SET_VIA_ENV:BUZZ_DEEPSEEK_API_KEY",
+    "model": "deepseek-chat",
+    "baseUrl": "https://api.deepseek.com"
+  },
+  "discord": {
+    "webhookUrl": "",
+    "botToken": "",
+    "channelId": ""
+  },
+  "polymarket": {
+    "enabled": true,
+    "priceSpikeEnabled": true,
+    "volumeSpikeEnabled": true,
+    "pollIntervalMs": 300000,
+    "marketRefreshMs": 600000,
+    "zThreshold": 3,
+    "minChangePp": 8,
+    "volSpikeThreshold": 3,
+    "minLiquidity": 20000,
+    "rollingWindowMinutes": 30,
+    "minDataPoints": 3,
+    "cooldownMs": 900000,
+    "tagIds": [
+      21,
+      120,
+      1401
+    ],
+    "excludeTagIds": [
+      100639
+    ]
+  },
+  "telegram": {
+    "enabled": false,
+    "botToken": "SET_VIA_ENV:BUZZ_TELEGRAM_BOT_TOKEN",
+    "chatId": "-5148746770",
+    "_note": "禁用独立推送，Buzz 仅作为 news agent 的数据源"
+  },
+  "dashboard": {
+    "port": 3848,
+    "password": "SET_VIA_ENV:BUZZ_DASHBOARD_PASSWORD"
+  }
+}
