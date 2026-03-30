@@ -11,6 +11,16 @@ export class RssPoller {
     this.seenIds = new Set();
     this._timer = null;
     this._stopped = false;
+
+    // Health tracking
+    this.health = {
+      lastSuccess: null,
+      lastError: null,
+      lastErrorMsg: '',
+      consecutiveFailures: 0,
+      totalPolls: 0,
+      totalErrors: 0,
+    };
   }
 
   async start() {
@@ -56,8 +66,16 @@ export class RssPoller {
         const arr = [...this.seenIds];
         this.seenIds = new Set(arr.slice(-2000));
       }
+      this.health.lastSuccess = Date.now();
+      this.health.consecutiveFailures = 0;
     } catch (e) {
-      console.error(`[${this.name}] Error:`, e.message);
+      this.health.totalErrors++;
+      this.health.consecutiveFailures++;
+      this.health.lastError = Date.now();
+      this.health.lastErrorMsg = e.message;
+      console.error(`[${this.name}] Error (${this.health.consecutiveFailures}x):`, e.message);
+    } finally {
+      this.health.totalPolls++;
     }
   }
 

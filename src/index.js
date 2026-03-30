@@ -1,7 +1,7 @@
 // Buzz — Main entry point
 // Jin10 + BlockBeats + RSS + X + Polymarket → Discord + Dashboard
 
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -14,10 +14,29 @@ import { EventBus } from './event-bus.js';
 import { DashboardServer } from './dashboard/server.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+// Load .env manually (no dotenv dependency needed)
+const envPath = resolve(__dirname, '..', '.env');
+if (existsSync(envPath)) {
+  for (const line of readFileSync(envPath, 'utf8').split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const eqIdx = trimmed.indexOf('=');
+    if (eqIdx > 0) {
+      const key = trimmed.slice(0, eqIdx).trim();
+      const val = trimmed.slice(eqIdx + 1).trim();
+      if (!process.env[key]) process.env[key] = val;
+    }
+  }
+}
 const configPath = resolve(__dirname, '..', 'config.json');
 
-// 1. Load config
+// 1. Load config (secrets can be overridden via env vars)
 const cfgMgr = new ConfigManager(configPath);
+// Override secrets from environment variables (mutate internal config, skip file write)
+if (process.env.BUZZ_DEEPSEEK_API_KEY) cfgMgr._config.ai = { ...cfgMgr._config.ai, apiKey: process.env.BUZZ_DEEPSEEK_API_KEY };
+if (process.env.BUZZ_TELEGRAM_BOT_TOKEN) cfgMgr._config.telegram = { ...cfgMgr._config.telegram, botToken: process.env.BUZZ_TELEGRAM_BOT_TOKEN };
+if (process.env.BUZZ_6551_TOKEN) cfgMgr._config.x6551 = { ...cfgMgr._config.x6551, token: process.env.BUZZ_6551_TOKEN };
+if (process.env.BUZZ_DASHBOARD_PASSWORD) cfgMgr._config.dashboard = { ...cfgMgr._config.dashboard, password: process.env.BUZZ_DASHBOARD_PASSWORD };
 const config = cfgMgr.get();
 
 const pkg = JSON.parse(readFileSync(resolve(__dirname, '..', 'package.json'), 'utf8'));
@@ -130,6 +149,116 @@ function createHandlers(deps) {
         title: `@${username}`,
         description: display,
       });
+    },
+
+    handleCcassBatch: async (items) => {
+      console.log(`[CCASS] ${items.length} shareholding changes detected`);
+      for (const item of items) {
+        const arrow = item.deltaPct > 0 ? '📈' : '📉';
+        const sign = item.deltaPct > 0 ? '+' : '';
+        const typeLabel = item.type === 'new_entry' ? '🆕 新进' :
+          item.type === 'exit' ? '🚪 退出' :
+          item.deltaPct > 0 ? '增持' : '减持';
+
+        const desc = [
+          `**${item.stockCode}.HK** — ${typeLabel}`,
+          `**持仓人**: ${item.holderName} (${item.holderId})`,
+          `**变动**: ${item.prevPct.toFixed(2)}% → ${item.currPct.toFixed(2)}% (${sign}${item.deltaPct.toFixed(2)}%)`,
+        ].join('\n');
+
+        const color = item.deltaPct > 0 ? 0x00c853 : 0xff1744;
+        const embed = {
+          title: `${arrow} CCASS 持仓变动 · ${item.stockCode}.HK`,
+          description: desc,
+          color,
+          footer: { text: 'HKEX CCASS Disclosure' },
+        };
+        const ok = await deps.notifier.send('news', embed);
+        if (ok) console.log(`[CCASS] Sent: ${item.stockCode} ${item.holderName} ${sign}${item.deltaPct.toFixed(2)}%`);
+        deps.bus.push('ccass', {
+          title: `CCASS ${item.stockCode}.HK ${typeLabel}`,
+          description: `${item.holderName} ${sign}${item.deltaPct.toFixed(2)}%`,
+          stockCode: item.stockCode,
+        });
+      }
+    },
+
+    handleEconCalendarBatch: async (items) => {
+      console.log(`[EconCal] ${items.length} economic events`);
+      for (const item of items) {
+        const impactIcon = item.impact === 'High' ? '🔴' : item.impact === 'Medium' ? '🟡' : '⚪';
+        const isRelease = item.isRelease;
+
+        let desc;
+        if (isRelease) {
+          // Data released
+          const surprise = item.actual && item.forecast &&
+            item.actual.replace(/[%KMB]/g, '') !== item.forecast.replace(/[%KMB]/g, '')
+            ? ' ⚡ 超预期' : '';
+          desc = [
+            `${impactIcon} **${item.country}** · ${item.impact}`,
+            `**实际值**: ${item.actual}${surprise}`,
+            `**预期**: ${item.forecast || '—'} · **前值**: ${item.previous || '—'}`,
+          ].join('\n');
+        } else {
+          // Upcoming event
+          desc = [
+            `${impactIcon} **${item.country}** · ${item.impact}`,
+            `⏰ ${item.minutesUntil} 分钟后发布`,
+            `**预期**: ${item.forecast || '—'} · **前值**: ${item.previous || '—'}`,
+          ].join('\n');
+        }
+
+        const color = isRelease ? 0x2196f3 : (item.impact === 'High' ? 0xff9800 : 0x9e9e9e);
+        const embed = {
+          title: `📅 ${item.title}`,
+          description: desc,
+          color,
+          footer: { text: isRelease ? '经济数据发布' : '经济日历预告' },
+          timestamp: new Date(item.date).toISOString(),
+        };
+        const ok = await deps.notifier.send('news', embed);
+        if (ok) console.log(`[EconCal] Sent: ${item.country} ${item.title}`);
+        deps.bus.push('econCalendar', {
+          title: `${item.country} ${item.title}`,
+          description: desc,
+          impact: item.impact,
+          isRelease: !!isRelease,
+        });
+      }
+    },
+
+    handleHkexBatch: async (items) => {
+      console.log(`[HKEX] ${items.length} new announcements`);
+      for (const item of items) {
+        const stockLabel = item.stockCode ? `${item.stockCode}.HK ${item.stockName}` : '';
+        let desc = `### ${item.title}`;
+        if (stockLabel) desc = `**${stockLabel}**\n${desc}`;
+        if (item.category) desc += `\n📋 ${item.category.replace(/<[^>]+>/g, '')}`;
+        if (item.fileLink) desc += `\n[📄 查看公告](https://www1.hkexnews.hk${item.fileLink})`;
+
+        // Color by category: Inside Info = red, Results = blue, others = grey
+        const cat = (item.category || '').toLowerCase();
+        let color = 0x9e9e9e;
+        if (cat.includes('inside information') || cat.includes('suspension')) color = 0xff1744;
+        else if (cat.includes('results')) color = 0x2196f3;
+        else if (cat.includes('buy-back') || cat.includes('placing') || cat.includes('rights')) color = 0xff9800;
+
+        const embed = {
+          description: desc,
+          color,
+          author: { name: `HKEX · ${item.dateTime}` },
+          footer: { text: '港交所公告' },
+        };
+        const ok = await deps.notifier.send('news', embed);
+        if (ok) console.log(`[HKEX] Sent: ${stockLabel} ${item.title.slice(0, 50)}`);
+        deps.bus.push('hkex', {
+          title: `${stockLabel} ${item.title}`,
+          description: item.category,
+          stockCode: item.stockCode,
+          url: item.fileLink ? `https://www1.hkexnews.hk${item.fileLink}` : '',
+        });
+      }
     },
 
     handleOpenNewsBatch: async (items) => {

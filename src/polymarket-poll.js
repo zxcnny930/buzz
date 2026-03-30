@@ -27,6 +27,11 @@ export class PolymarketPoller {
     this._pollTimer = null;
     this._refreshTimer = null;
     this._stopped = false;
+
+    this.health = {
+      lastSuccess: null, lastError: null, lastErrorMsg: '',
+      consecutiveFailures: 0, totalPolls: 0, totalErrors: 0,
+    };
   }
 
   async start() {
@@ -113,31 +118,45 @@ export class PolymarketPoller {
     let checked = 0;
     let spikeCount = 0;
 
-    for (const market of this.markets) {
-      if (this._stopped) break;
+    try {
+      for (const market of this.markets) {
+        if (this._stopped) break;
 
-      if (this.priceSpikeEnabled) {
-        for (let ti = 0; ti < market.clobTokenIds.length; ti++) {
-          const tokenId = market.clobTokenIds[ti];
-          try {
-            const spike = await this._checkToken(market, tokenId, ti);
-            if (spike) spikeCount++;
-            checked++;
-          } catch (e) {
-            // Silently skip individual token errors
+        if (this.priceSpikeEnabled) {
+          for (let ti = 0; ti < market.clobTokenIds.length; ti++) {
+            const tokenId = market.clobTokenIds[ti];
+            try {
+              const spike = await this._checkToken(market, tokenId, ti);
+              if (spike) spikeCount++;
+              checked++;
+            } catch (e) {
+              // Silently skip individual token errors
+            }
+
+            // Small delay to stay within rate limits (~20ms between requests)
+            await sleep(20);
           }
-
-          // Small delay to stay within rate limits (~20ms between requests)
-          await sleep(20);
         }
+
+        // Check volume spike
+        if (this.volumeSpikeEnabled) this._checkVolume(market);
       }
 
-      // Check volume spike
-      if (this.volumeSpikeEnabled) this._checkVolume(market);
-    }
-
-    if (spikeCount > 0) {
-      console.log(`[Polymarket] Poll done — ${checked} tokens checked, ${spikeCount} spikes detected`);
+      if (checked > 0) {
+        this.health.lastSuccess = Date.now();
+        this.health.consecutiveFailures = 0;
+      }
+      if (spikeCount > 0) {
+        console.log(`[Polymarket] Poll done — ${checked} tokens checked, ${spikeCount} spikes detected`);
+      }
+    } catch (e) {
+      this.health.totalErrors++;
+      this.health.consecutiveFailures++;
+      this.health.lastError = Date.now();
+      this.health.lastErrorMsg = e.message;
+      console.error(`[Polymarket] Poll error: ${e.message}`);
+    } finally {
+      this.health.totalPolls++;
     }
   }
 

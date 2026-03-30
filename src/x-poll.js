@@ -16,6 +16,11 @@ export class XPoller {
     this._pollTimer = null;
     this._syncTimer = null;
     this._stopped = false;
+
+    this.health = {
+      lastSuccess: null, lastError: null, lastErrorMsg: '',
+      consecutiveFailures: 0, totalPolls: 0, totalErrors: 0,
+    };
   }
 
   async start() {
@@ -64,13 +69,25 @@ export class XPoller {
   }
 
   async _pollAll() {
+    let anySuccess = false;
     for (const kol of this.kols) {
       if (this._stopped) return;
       try {
         await this._pollKol(kol);
+        anySuccess = true;
       } catch (e) {
+        this.health.totalErrors++;
+        this.health.lastError = Date.now();
+        this.health.lastErrorMsg = `@${kol}: ${e.message}`;
         console.error(`[X] Error polling @${kol}:`, e.message);
       }
+    }
+    this.health.totalPolls++;
+    if (anySuccess) {
+      this.health.lastSuccess = Date.now();
+      this.health.consecutiveFailures = 0;
+    } else if (this.kols.length > 0) {
+      this.health.consecutiveFailures++;
     }
   }
 
